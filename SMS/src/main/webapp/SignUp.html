@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Sign UP</title>
+	<link rel="stylesheet" type="text/css" href="SignUp.css">
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+	<div class="body">
+		<div class="login">
+			<h2 class="loginTitle"> Sign UP</h2>
+			<form id="SignupForm" action="/userSignup" method="post">
+			<div class="text">
+				<input type="text" name="firstName" placeholder="First Name"/>
+			</div>
+			<div class="text">
+				<input type="text" name="lastName" placeholder="Last Name">
+			</div>
+			<div class="text">
+				<input type="text" name="registerNumber" placeholder="Register Number"/>
+			</div>
+			<div class="text">
+				<input list="department" name="department" placeholder="Department" />
+				<datalist id="department">
+  				<option value="CSE">
+  				<option value="MECH">
+  				<option value="CIVIL">
+  				<option value="ECE">
+  				<option value="EEE">
+				</datalist>
+			</div>
+			<div class="text">
+				<input type="date" name="dateOfBirth" placeholder="Date Of Birth"/>
+			</div>
+			<div class="text">
+				<input type="email" name="email" placeholder="Email">
+			</div>
+			<div class="text">
+				<input type="password" name="password" placeholder="Password">
+			</div>
+			<div class="text">
+				<input type="password" name="confirmPassword" placeholder="Confirm Password">
+			</div>
+			<span>Already have an account?<a href="Login.html">  Login </a></span>
+			<button> Get Connected </button>
+			</form>
+		</div>
+	</div>
+</body>
+</html>
