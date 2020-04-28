@@ -40,7 +40,7 @@
 		<nav class="navbar navbar-dark navbar-custom"
 			style="background-color: tomato">
 			<div>
-				<a href="LoginHomepage.html" class="navbar-brand"> Home </a>
+				<a href="/dashboard" class="navbar-brand"> Home </a>
 			</div>
 		</nav>
 	</header>
