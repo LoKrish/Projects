@@ -1,7 +1,7 @@
 // window.onload = initPage();
 
 var validemail = false;
-var validpassword = false;
+var password = false;
 
 /*
 function initPage() {
@@ -22,7 +22,7 @@ function initPage() {
 } */
 
 function loginButton() {
-  if (validemail == true && validpassword == true) {
+  if (validemail == true && password == true) {
     document.getElementById("loginButton").disabled = false;
   }
 }
@@ -33,7 +33,7 @@ function login() {
       var email = document.getElementById("email").value;
       var password = document.getElementById("password").value;
       var parameters = "email=" + email + "&password=" + password;
-      console.log(email);
+
       var xmlHttp = init();
       xmlHttp.open("POST", "userEntry", true);
       xmlHttp.setRequestHeader(
@@ -96,7 +96,6 @@ function validateEmail() {
       formStatus.innerHTML = "";
       formStatus.className = "valid";
       validemail = true;
-      return true;
     } else {
       formStatus.innerHTML = "Enter a valid Email";
       formStatus.className = "invalid";
@@ -114,7 +113,7 @@ function validatePassword() {
     return false;
   } else {
     formStatus.innerHTML = "";
-    validpassword = true;
+    password = true;
     return true;
   }
 }

@@ -69,7 +69,7 @@
 							<td><c:out value="${student.getFirstName()}" /></td>
 							<td><c:out value="${student.getLastName()}" /></td>
 							<td><c:out value="${student.getEmail()}" /></td>
-							<td><c:out value="${student.getDateOfBirth()}" /></td>
+							<td><c:out value="" /></td>
 						</tr>
 					</c:forEach>
 				</tbody>

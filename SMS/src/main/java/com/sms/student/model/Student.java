@@ -1,9 +1,10 @@
 package com.sms.student.model;
 
 import java.io.Serializable;
+import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Index;
 
-import org.springframework.cloud.gcp.data.datastore.core.mapping.Entity;
-import org.springframework.data.annotation.Id;
 import org.springframework.stereotype.Component;
 
 @Entity(name="students")
@@ -20,8 +21,10 @@ public class Student implements Serializable {
 	private int registerNumber;
 	private String department;
 	private String dateOfBirth;
+	@Index
 	private String email;
 	private String password;
+	private String image;
 
 	public Student() {
 		
@@ -33,6 +36,16 @@ public class Student implements Serializable {
 		this.registerNumber = registerNumber;
 		this.department = department;
 		this.dateOfBirth = dateOfBirth;
+		this.email = email;
+		this.password = password;
+	}
+	
+	public Student(String firstName, String lastName, int registerNumber, String department, String email,
+			String password) {
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.registerNumber = registerNumber;
+		this.department = department;
 		this.email = email;
 		this.password = password;
 	}
@@ -91,6 +104,12 @@ public class Student implements Serializable {
 	
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	public String getImage() {
+		return image;
+	}
+	public void setImage(String image) {
+		this.image = image;
 	}
 
 }

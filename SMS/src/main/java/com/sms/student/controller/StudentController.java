@@ -1,25 +1,28 @@
 package com.sms.student.controller;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
-import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
+
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.sms.student.model.Student;
 import com.sms.student.repository.StudentRepository;
 
 @RestController
-@SessionAttributes("student")
 public class StudentController extends HttpServlet {
 
 	/**
@@ -28,83 +31,71 @@ public class StudentController extends HttpServlet {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	@ModelAttribute("student")
-	public Student student() {
-		return new Student();
-	}
-
 	StudentRepository studentRepository = new StudentRepository();
-	
-	/*
-	 *  Redirecting to the login page
-	 */
-	@GetMapping(value = "/loginPage")
-	public void loginPage(HttpServletResponse response) throws IOException {
-		response.sendRedirect("Login.html");
-	}
 
 	/*
-	 *  Redirecting to the SignUp
+	 * Login checking the username and password and returning the user if both
+	 * matches else redirecting to the login page
 	 */
-	@GetMapping(value = "/signUpPage")
-	public void signUpPage(HttpServletResponse response) throws IOException {
-		response.sendRedirect("SignUp.html");
-	}
 
-	/* 
-	 *  Login checking the username and password and returning the user if both matches
-	 *  else redirecting to the login page
-	 */
-	
 	@PostMapping(value = "/userEntry")
-	public ModelAndView userlogin(@RequestParam("registerNumber") int registerNumber,
-			@RequestParam("password") String password, @SessionAttribute("student") Student currentUser)
-			throws EntityNotFoundException {
-		Student student = studentRepository.getStudent(registerNumber, password);
+	public void userlogin(@RequestParam("email") String email, @RequestParam("password") String password,
+			HttpSession session, HttpServletResponse response)
+			throws EntityNotFoundException, IOException {
+		System.out.println(password);
+		String salt = "SHA1PRNG";
+		String securedPassword = PasswordUtils.generateSecurePassword(password, salt);
+		System.out.println(securedPassword);
+		Student student = studentRepository.getStudent(email, securedPassword);
+		System.out.println(email);
 		if (student == null) {
-			System.out.println("Error");
-
+			response.setContentType("text");
+			response.setHeader("Cache-control", "no-cache");
+			response.getWriter().write("failure");
+			System.out.println(email);
+		} else {
+			session.setAttribute("student", student);
+			System.out.print(student.getFirstName());
+			response.setContentType("text");
+			response.setHeader("Cache-control", "no-cache");
+			response.getWriter().write("success");
 		}
-		currentUser.setRegisterNumber(student.getRegisterNumber());
-		currentUser.setFirstName(student.getFirstName());
-		currentUser.setLastName(student.getLastName());
-		currentUser.setDepartment(student.getDepartment());
-		currentUser.setDateOfBirth(student.getDateOfBirth());
-		currentUser.setEmail(student.getEmail());
-		currentUser.setPassword(student.getPassword());
-		System.out.print(currentUser.getFirstName());
-		ModelAndView modelView = new ModelAndView();
-		modelView.setViewName("Dashboard.jsp");
-		modelView.addObject("student", currentUser);
-		return modelView;
-
 	}
 
 	/*
-	 *  Accepting the input from the user and checking whether the user exists already in the database  
-	 *  if exists redirecting to the login page 
-	 *  else storing it in database and redirecting the user to the loginpage
+	 * Accepting the input from the user and checking whether the user exists
+	 * already in the database if exists redirecting to the login page else storing
+	 * it in database and redirecting the user to the loginpage
 	 */
+
 	@PostMapping(value = "/userSignup")
-	public ModelAndView userSignup(@ModelAttribute("student") Student student) {
-		System.out.println(student.getFirstName());
-		if (!studentRepository.checkStudent(student.getRegisterNumber())) {
-			studentRepository.createStudent(student);
-			ModelAndView modelView = new ModelAndView();
-			modelView.setViewName("Login.html");
-			return modelView;
-		}
-		return null;
+	public void userSignup(@ModelAttribute("student") Student student, HttpServletResponse response)
+			throws IOException {
+		int registerNumber = generateRegisterNumber(student.getDepartment());
+		student.setRegisterNumber(registerNumber);
+		String salt = "SHA1PRNG";
+		System.out.println(student.getPassword());
+		String securedPassword = PasswordUtils.generateSecurePassword(student.getPassword(), salt);
+		student.setPassword(securedPassword);
+		System.out.println(securedPassword);
+		studentRepository.createStudent(student);
+		response.setContentType("text");
+		response.setHeader("Cache-control", "no-cache");
+		String number = registerNumber + "";
+		response.getWriter().write(number);
+		System.out.println(registerNumber);
 	}
 
 	/*
 	 * To view the userDetails of the user
 	 */
 
-	@GetMapping(value = "/userDetails")
-	public ModelAndView userDetails(@SessionAttribute("student") Student student) {
+	@GetMapping(value = "/editUserDetails")
+	public ModelAndView userDetails(HttpSession session) {
+		Student student=(Student) session.getAttribute("student");
 		ModelAndView modelView = new ModelAndView();
-		modelView.setViewName("");
+		modelView.setViewName("Userdetails.jsp");
+		modelView.addObject("student", student);
 		return modelView;
 	}
 
@@ -113,8 +104,37 @@ public class StudentController extends HttpServlet {
 	 * department of the student
 	 */
 
+	@PostMapping(value = "/userUpdateDetails")
+	public void editUserDetails(@ModelAttribute("student") Student temporaryStudent,HttpSession session, HttpServletResponse response)
+			throws IOException, EntityNotFoundException {
+		Student student=(Student) session.getAttribute("student");
+		student.setDateOfBirth(temporaryStudent.getDateOfBirth());
+		student.setFirstName(temporaryStudent.getFirstName());
+		student.setLastName(temporaryStudent.getLastName());
+		student.setEmail(temporaryStudent.getEmail());
+		studentRepository.updateStudent(student.getRegisterNumber(), student);
+		response.sendRedirect("/dashboard");
+	}
+
+	/*
+	 * Generates registerNumber is
+	 */
+	public int generateRegisterNumber(String department) {
+		int registerNumber = studentRepository.getRegisterNumber(department);
+		int registerCode = (department.equals("CSE")) ? 222
+				: (department.equals("MECH")) ? 122
+						: (department.equals("EEE")) ? 522 : (department.equals("ECE")) ? 422 : 322;
+		if (registerNumber == 0) {
+			String register = String.valueOf(registerCode) + "000";
+			return Integer.parseInt(register);
+		} else {
+			return registerNumber + 1;
+		}
+	}
+
 	@GetMapping(value = "/viewBatchmates")
-	public ModelAndView viewBatchMates(@SessionAttribute("student") Student student) {
+	public ModelAndView viewBatchMates(HttpSession session) {
+		Student student=(Student) session.getAttribute("student");
 		ArrayList<Student> batchmates = studentRepository.fetchBatchmates(student);
 		ModelAndView modelView = new ModelAndView();
 		modelView.setViewName("ViewBatchMates.jsp");
@@ -128,20 +148,47 @@ public class StudentController extends HttpServlet {
 	 */
 
 	@GetMapping(value = "/dashboard")
-	public ModelAndView dashboard(@SessionAttribute("student") Student student) {
-		System.out.println(student.getRegisterNumber());
+	public ModelAndView dashboard(HttpServletRequest request, HttpServletResponse response)
+			throws IOException {
+		HttpSession session=request.getSession();
+		Student student=(Student) session.getAttribute("student");
+		//System.out.println(student.getRegisterNumber());
+		System.out.print("hello");
 		ModelAndView modelView = new ModelAndView();
-		if(student.getRegisterNumber()==0) {
-			modelView.setViewName("Login.html");
+		if (student==null) {
+			response.sendRedirect("Login.jsp");
+			return null;
+		} else {
+			student.setImage(studentRepository.getImage(student.getRegisterNumber()));
+			modelView.setViewName("Dashboard.jsp");
+			modelView.addObject("student", student);
 			return modelView;
 		}
-		modelView.setViewName("Dashboard.jsp");
-		modelView.addObject("student", student);
-		return modelView;
 	}
 
-	@GetMapping(value = "/logout")
-	public void logout(HttpServletRequest request, HttpServletResponse response,@SessionAttribute("student") Student student) throws ServletException, IOException {
-		response.sendRedirect("Homepage.html");
+	@GetMapping(value = "/uploadProfilePicture")
+	public ModelAndView uploadPage() {
+		ModelAndView modelView = new ModelAndView();
+		modelView.setViewName("ImageUpload.jsp");
+		return modelView;
+
+	}
+
+	/*
+	 * Storing the image in the Blobstore and storing the image url in the datastore
+	 */
+	@PostMapping(value = "/imageUpload")
+	public void imageUpload(HttpServletRequest request, HttpServletResponse response,
+			HttpSession session) throws EntityNotFoundException, IOException, ServletException {
+		Student student=(Student) session.getAttribute("student");
+		Part part=request.getPart("image");
+		ByteArrayOutputStream byteArrayOutputStream=new ByteArrayOutputStream();
+		ObjectOutputStream outputStream=new ObjectOutputStream(byteArrayOutputStream);
+		outputStream.writeObject(part);
+		outputStream.flush();
+		byte[] data=byteArrayOutputStream.toByteArray();
+		studentRepository.uploadImage(student.getRegisterNumber(), data);
+		response.sendRedirect("/dashboard");
+
 	}
 }

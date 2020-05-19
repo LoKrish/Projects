@@ -1,113 +1,149 @@
-body {
-	margin: 0;
-	padding: 0;
-	font-family: "Oswald", sans-serif;
-	background:rgb(11,232,129);
-	overflow: hidden;
+<link rel="stylesheet"href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"crossorigin="anonymous">
+
+/* Assign grid instructions to our parent grid container */
+.grid-container {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: 50px 1fr 50px;
+  grid-template-areas:
+    "sidenav header"
+    "sidenav main"
+    "sidenav footer";
+  height: 100vh;
 }
 
-.mobilenav {
-	display: none;
-	cursor: pointer;
-	position: absolute;
-	top: 5px;
-	right: 5px;
-	font-size: 32px;
-	background: radial-gradient(circle, rgba(11, 232, 129, 1) 0%,
-		rgba(69, 84, 96, 1) 100%);
-	background-color: #ecf0f1;
-	z-index: 1;
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px;
+  padding: 30px;
+  height: 530px;
+  width: 1200px;
+  /* Force our height since we don't have actual content yet */
+  top: 0%;
+  background-color: red;
+  background: radial-gradient(circle, rgba(11, 232, 129, 1) 0%, rgba(69, 84, 96, 1) 100%);
+  color: slategray;
+  position: absolute;
 }
 
-@media only screen and (max-width: 470px) {
-	.mobilenav {
-		display: block;
-	}
+.sidenav {
+  grid-area: sidenav;
+  background-color: #ecf0f1;
 }
 
-.nav {
-	position: absolute;
-	width: 200px;
-	height: 100%;
-	background:#ecf0f1;
-	display: table;
-	z-index: 2;
+.main {
+  grid-area: main;
+  background-color: #ecf0f1;
 }
 
-@media only screen and (max-width: 40em) {
-	.nav {
-		width: 100%;
-		height: 50px;
-		text-align: center;
-	}
+.footer {
+  grid-area: footer;
+  background-color: #ecf0f1;
 }
 
-@media only screen and (max-width: 470px) {
-	.nav {
-		transform: translateX(500px);
-		transition: transform 0.3s ease-in-out;
-	}
-	.nav.showing {
-		transform: translateX(0);
-	}
+.sidenav {
+  display: flex;
+  /* Will be hidden on mobile */
+  flex-direction: column;
+  grid-area: sidenav;
+  background-color: #ecf0f1;
 }
 
-.navul {
-	display: table-cell;
-	vertical-align: middle;
-	list-style: none;
-	padding: 0;
-	text-align: center;
+.well {
+  margin-left: 480px;
+  border-radius: 100%;
 }
 
-.navli {
-	padding: 0;
-	padding-top: 20px;
-	padding-bottom: 20px;
-	width: 100%;
-	transition: background 0.3s linear, border 0.3s linear;
+.profile {
+  margin-left: 500px;
+  border-radius: 100%;
+  width: 200;
+  height: 200;
 }
 
-@media only screen and (max-width: 40em) {
-	.navli {
-		display: inline;
-		padding-left: 20px;
-		padding-right: 20px;
-		padding-top: 9px;
-		padding-bottom: 9px;
-		margin: 0;
-	}
+.highlight {
+  text-align: center;
+  margin-left: 500px;
+  border-radius: 100%;
 }
 
-@media only screen and (max-width: 470px) {
-	.navli {
-		display: block;
-	}
+.highlight {
+  color: #ecf0f1;
+  font-size: 20px;
 }
 
-.navli:hover {
-	background: e0;
-	border-right: 5px solid white;
+
+
+hr {
+  width: 100px;
 }
 
-@media only screen and (max-width: 40em) {
-	.navli:hover {
-		border-right: none;
-		border-bottom: 5px solid white;
-	}
+.pad {
+  padding-right: 50px;
 }
 
-@media only screen and (max-width: 470px) {
-	.navli:hover {
-		border: none;
-	}
+.sidenav__list {
+  padding: 0;
+  margin-top: 85px;
+  list-style-type: none;
 }
 
-.active {
-	background: #1b98e0;
+.sidenav__list-item {
+  padding: 20px 20px 20px 40px;
+  color: #ddd;
 }
 
-a {
-	text-decoration: none;
-	color: #13293d;
+.sidenav__list-item:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  /* Side nav is hidden on mobile */
+  grid-template-rows: 50px 1fr 50px;
+  grid-template-areas:
+    "header"
+    "main"
+    "footer";
+  height: 100vh;
+}
+
+.sidenav {
+  display: none;
+  grid-area: sidenav;
+  background-color: #ecf0f1;
+}
+
+.content {
+  height: 100px;
+  color: #ecf0f1;
+}
+
+/* Non-mobile styles, 750px breakpoint */
+@media only screen and (min-width: 46.875em) {
+
+  /* Show the sidenav */
+  .grid-container {
+    grid-template-columns: 240px 1fr;
+    /* Show the side nav for non-mobile screens */
+    grid-template-areas:
+      "sidenav header"
+      "sidenav main"
+      "sidenav footer";
+  }
+
+  .sidenav {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+
+
+/* The active class is toggled on hamburger and close icon clicks */
+.sidenav.active {
+  transform: translateX(0);
 }
