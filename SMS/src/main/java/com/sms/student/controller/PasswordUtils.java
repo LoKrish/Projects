@@ -10,7 +10,6 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
  
 public class PasswordUtils {
-    
     private static final Random RANDOM = new SecureRandom();
     private static final String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     private static final int ITERATIONS = 10000;
@@ -18,11 +17,9 @@ public class PasswordUtils {
     
      public static String getSalt(int length) {
         StringBuilder returnValue = new StringBuilder(length);
-
         for (int i = 0; i < length; i++) {
             returnValue.append(ALPHABET.charAt(RANDOM.nextInt(ALPHABET.length())));
         }
-
         return new String(returnValue);
     }
 
@@ -47,6 +44,5 @@ public class PasswordUtils {
         returnValue = Base64.getEncoder().encodeToString(securePassword);
  
         return returnValue;
-    }
-    
+    }    
 }

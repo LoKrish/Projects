@@ -20,7 +20,7 @@ public class StudentRepositoryObjectify {
 				.first().now();
 		if (student != null) {
 			return student.getRegisterNumber();
-		} else {
+		} else {	
 			return 0;
 		}
 	}

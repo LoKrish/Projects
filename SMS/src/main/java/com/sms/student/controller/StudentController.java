@@ -40,8 +40,7 @@ public class StudentController extends HttpServlet {
 
 	@PostMapping(value = "/userEntry")
 	public void userlogin(@RequestParam("email") String email, @RequestParam("password") String password,
-			HttpSession session, HttpServletResponse response)
-			throws EntityNotFoundException, IOException {
+			HttpSession session, HttpServletResponse response) throws EntityNotFoundException, IOException {
 		System.out.println(password);
 		String salt = "SHA1PRNG";
 		String securedPassword = PasswordUtils.generateSecurePassword(password, salt);
@@ -92,7 +91,7 @@ public class StudentController extends HttpServlet {
 
 	@GetMapping(value = "/editUserDetails")
 	public ModelAndView userDetails(HttpSession session) {
-		Student student=(Student) session.getAttribute("student");
+		Student student = (Student) session.getAttribute("student");
 		ModelAndView modelView = new ModelAndView();
 		modelView.setViewName("Userdetails.jsp");
 		modelView.addObject("student", student);
@@ -105,9 +104,9 @@ public class StudentController extends HttpServlet {
 	 */
 
 	@PostMapping(value = "/userUpdateDetails")
-	public void editUserDetails(@ModelAttribute("student") Student temporaryStudent,HttpSession session, HttpServletResponse response)
-			throws IOException, EntityNotFoundException {
-		Student student=(Student) session.getAttribute("student");
+	public void editUserDetails(@ModelAttribute("student") Student temporaryStudent, HttpSession session,
+			HttpServletResponse response) throws IOException, EntityNotFoundException {
+		Student student = (Student) session.getAttribute("student");
 		student.setDateOfBirth(temporaryStudent.getDateOfBirth());
 		student.setFirstName(temporaryStudent.getFirstName());
 		student.setLastName(temporaryStudent.getLastName());
@@ -117,7 +116,7 @@ public class StudentController extends HttpServlet {
 	}
 
 	/*
-	 * Generates registerNumber is
+	 * Generates registerNumber
 	 */
 	public int generateRegisterNumber(String department) {
 		int registerNumber = studentRepository.getRegisterNumber(department);
@@ -131,15 +130,24 @@ public class StudentController extends HttpServlet {
 			return registerNumber + 1;
 		}
 	}
-
+	
+	/*
+	 * To view Batchmates of the student
+	 */
+	
 	@GetMapping(value = "/viewBatchmates")
-	public ModelAndView viewBatchMates(HttpSession session) {
-		Student student=(Student) session.getAttribute("student");
-		ArrayList<Student> batchmates = studentRepository.fetchBatchmates(student);
+	public ModelAndView viewBatchMates(HttpSession session, HttpServletResponse response) throws IOException {
 		ModelAndView modelView = new ModelAndView();
-		modelView.setViewName("ViewBatchMates.jsp");
-		modelView.addObject("batchmates", batchmates);
-		return modelView;
+		if (session == null) {
+			response.sendRedirect("/login");
+			return null;
+		} else {
+			Student student = (Student) session.getAttribute("student");
+			ArrayList<Student> batchmates = studentRepository.fetchBatchmates(student);
+			modelView.setViewName("ViewBatchMates.jsp");
+			modelView.addObject("batchmates", batchmates);
+			return modelView;
+		}
 	}
 
 	/*
@@ -148,18 +156,17 @@ public class StudentController extends HttpServlet {
 	 */
 
 	@GetMapping(value = "/dashboard")
-	public ModelAndView dashboard(HttpServletRequest request, HttpServletResponse response)
-			throws IOException {
-		HttpSession session=request.getSession();
-		Student student=(Student) session.getAttribute("student");
-		//System.out.println(student.getRegisterNumber());
+	public ModelAndView dashboard(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		HttpSession session = request.getSession();
+		Student student = (Student) session.getAttribute("student");
+		// System.out.println(student.getRegisterNumber());
 		System.out.print("hello");
 		ModelAndView modelView = new ModelAndView();
-		if (student==null) {
+		if (student == null) {
 			response.sendRedirect("Login.jsp");
 			return null;
 		} else {
-			student.setImage(studentRepository.getImage(student.getRegisterNumber()));
+			// student.setImage(studentRepository.getImage(student.getRegisterNumber()));
 			modelView.setViewName("Dashboard.jsp");
 			modelView.addObject("student", student);
 			return modelView;
@@ -178,16 +185,16 @@ public class StudentController extends HttpServlet {
 	 * Storing the image in the Blobstore and storing the image url in the datastore
 	 */
 	@PostMapping(value = "/imageUpload")
-	public void imageUpload(HttpServletRequest request, HttpServletResponse response,
-			HttpSession session) throws EntityNotFoundException, IOException, ServletException {
-		Student student=(Student) session.getAttribute("student");
-		Part part=request.getPart("image");
-		ByteArrayOutputStream byteArrayOutputStream=new ByteArrayOutputStream();
-		ObjectOutputStream outputStream=new ObjectOutputStream(byteArrayOutputStream);
+	public void imageUpload(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+			throws EntityNotFoundException, IOException, ServletException {
+		Student student = (Student) session.getAttribute("student");
+		Part part = request.getPart("image");
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		ObjectOutputStream outputStream = new ObjectOutputStream(byteArrayOutputStream);
 		outputStream.writeObject(part);
 		outputStream.flush();
-		byte[] data=byteArrayOutputStream.toByteArray();
-		studentRepository.uploadImage(student.getRegisterNumber(), data);
+		byte[] data = byteArrayOutputStream.toByteArray();
+		// studentRepository.uploadImage(student.getRegisterNumber(), data);
 		response.sendRedirect("/dashboard");
 
 	}
